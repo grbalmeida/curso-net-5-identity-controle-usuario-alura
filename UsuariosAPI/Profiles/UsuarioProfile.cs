@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using UsuariosAPI.Data.Dtos;
+using UsuariosAPI.Models;
 
 namespace UsuariosAPI.Profiles
 {

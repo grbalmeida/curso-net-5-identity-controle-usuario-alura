@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using UsuariosAPI.Data.Dtos;
 
 namespace UsuariosAPI.Controllers
 {
