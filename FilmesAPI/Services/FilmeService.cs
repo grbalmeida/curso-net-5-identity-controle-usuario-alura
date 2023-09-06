@@ -3,6 +3,7 @@ using AutoMapper;
 using FilmesAPI.Data;
 using FilmesAPI.Data.Dtos;
 using FilmesAPI.Models;
+using FluentResults;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -66,19 +67,35 @@ namespace FilmesAPI.Services
             return null;
         }
 
-        public async Task AtualizaFilme(int id, UpdateFilmeDto updateDto)
+        public async Task<Result> AtualizaFilme(int id, UpdateFilmeDto updateDto)
         {
             var filme = await _context.Filmes.FirstOrDefaultAsync(filme => filme.Id == id);
+
+            if (filme == null)
+            {
+                return Result.Fail("Filme não encontrado");
+            }
+
             _mapper.Map(updateDto, filme);
             _context.Filmes.Update(filme);
             await _context.SaveChangesAsync();
+
+            return Result.Ok();
         }
 
-        public async Task DeletaFilme(ReadFilmeDto readDto)
+        public async Task<Result> DeletaFilme(int id)
         {
-            var filme = _mapper.Map<Filme>(readDto);
+            var filme = await _context.Filmes.FirstOrDefaultAsync(filme => filme.Id == id);
+
+            if (filme == null)
+            {
+                return Result.Fail("Filme não encontrado");
+            }
+
             _context.Filmes.Remove(filme);
             await _context.SaveChangesAsync();
+
+            return Result.Ok();
         }
     }
 }

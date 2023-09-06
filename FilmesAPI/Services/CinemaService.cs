@@ -2,6 +2,7 @@
 using FilmesAPI.Data;
 using FilmesAPI.Data.Dtos;
 using FilmesAPI.Models;
+using FluentResults;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,19 +60,35 @@ namespace FilmesAPI.Services
             return null;
         }
 
-        public async Task AtualizaCinema(int id, UpdateCinemaDto updateDto)
+        public async Task<Result> AtualizaCinema(int id, UpdateCinemaDto updateDto)
         {
             var cinema = await _context.Cinemas.FirstOrDefaultAsync(cinema => cinema.Id == id);
+
+            if (cinema == null)
+            {
+                return Result.Fail("Cinema não encontrado");
+            }
+
             _mapper.Map(updateDto, cinema);
             _context.Cinemas.Update(cinema);
             await _context.SaveChangesAsync();
+
+            return Result.Ok();
         }
 
-        public async Task DeletaCinema(ReadCinemaDto readDto)
+        public async Task<Result> DeletaCinema(int id)
         {
-            var cinema = _mapper.Map<Cinema>(readDto);
+            var cinema = await _context.Cinemas.FirstOrDefaultAsync(cinema => cinema.Id == id);
+
+            if (cinema == null)
+            {
+                return Result.Fail("Cinema não encontrado");
+            }
+
             _context.Cinemas.Remove(cinema);
             await _context.SaveChangesAsync();
+
+            return Result.Ok();
         }
     }
 }

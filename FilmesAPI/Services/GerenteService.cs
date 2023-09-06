@@ -2,6 +2,7 @@
 using FilmesAPI.Data;
 using FilmesAPI.Data.Dtos;
 using FilmesAPI.Models;
+using FluentResults;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
@@ -41,11 +42,19 @@ namespace FilmesAPI.Services
             return null;
         }
 
-        public async Task DeletaGerente(ReadGerenteDto readDto)
+        public async Task<Result> DeletaGerente(int id)
         {
-            var gerente = _mapper.Map<Gerente>(readDto);
+            var gerente = await _context.Gerentes.FirstOrDefaultAsync(gerente => gerente.Id == id);
+
+            if (gerente == null)
+            {
+                return Result.Fail("Gerente não encontrado");
+            }
+
             _context.Gerentes.Remove(gerente);
             await _context.SaveChangesAsync();
+
+            return Result.Ok();
         }
     }
 }

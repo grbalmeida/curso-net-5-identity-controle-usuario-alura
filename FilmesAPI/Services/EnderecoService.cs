@@ -2,6 +2,7 @@
 using FilmesAPI.Data;
 using FilmesAPI.Data.Dtos;
 using FilmesAPI.Models;
+using FluentResults;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -46,19 +47,35 @@ namespace FilmesAPI.Services
             return null;
         }
 
-        public async Task AtualizaEndereco(int id, UpdateEnderecoDto updateDto)
+        public async Task<Result> AtualizaEndereco(int id, UpdateEnderecoDto updateDto)
         {
             var endereco = await _context.Enderecos.FirstOrDefaultAsync(endereco => endereco.Id == id);
+
+            if (endereco == null)
+            {
+                return Result.Fail("Endereço não encontrado");
+            }
+
             _mapper.Map(updateDto, endereco);
             _context.Enderecos.Update(endereco);
             await _context.SaveChangesAsync();
+
+            return Result.Ok();
         }
 
-        public async Task DeletaEndereco(ReadEnderecoDto readDto)
+        public async Task<Result> DeletaEndereco(int id)
         {
-            var endereco = _mapper.Map<Endereco>(readDto);
+            var endereco = await _context.Enderecos.FirstOrDefaultAsync(endereco => endereco.Id == id);
+
+            if (endereco == null)
+            {
+                return Result.Fail("Endereço não encontrado");
+            }
+
             _context.Enderecos.Remove(endereco);
             await _context.SaveChangesAsync();
+
+            return Result.Ok();
         }
     }
 }

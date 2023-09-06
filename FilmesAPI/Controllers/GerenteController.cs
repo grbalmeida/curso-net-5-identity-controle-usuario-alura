@@ -39,14 +39,9 @@ namespace FilmesAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletaGerente(int id)
         {
-            var readDto = await _gerenteService.RecuperaGerentePorId(id);
+            var resultado = await _gerenteService.DeletaGerente(id);
 
-            if (readDto == null)
-            {
-                return NotFound();
-            }
-
-            await _gerenteService.DeletaGerente(readDto);
+            if (resultado.IsFailed) return NotFound();
 
             return NoContent();
         }

@@ -52,14 +52,9 @@ namespace FilmesAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> AtualizaCinema(int id, [FromBody] UpdateCinemaDto cinemaDto)
         {
-            var readDto = await _cinemaService.RecuperaCinemaPorId(id);
+            var resultado = await _cinemaService.AtualizaCinema(id, cinemaDto);
 
-            if (readDto == null)
-            {
-                return NotFound();
-            }
-
-            await _cinemaService.AtualizaCinema(id, cinemaDto);
+            if (resultado.IsFailed) return NotFound();
 
             return NoContent();
         }
@@ -67,14 +62,9 @@ namespace FilmesAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletaCinema(int id)
         {
-            var readDto = await _cinemaService.RecuperaCinemaPorId(id);
+            var resultado = await _cinemaService.DeletaCinema(id);
 
-            if (readDto == null)
-            {
-                return NotFound();
-            }
-
-            await _cinemaService.DeletaCinema(readDto);
+            if (resultado.IsFailed) return NotFound();
 
             return NoContent();
         }

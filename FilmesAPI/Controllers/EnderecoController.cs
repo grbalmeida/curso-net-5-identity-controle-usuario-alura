@@ -48,14 +48,9 @@ namespace FilmesAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> AtualizaEndereco(int id, [FromBody] UpdateEnderecoDto enderecoDto)
         {
-            var readDto = await _enderecoService.RecuperaEnderecoPorId(id);
+            var resultado = await _enderecoService.AtualizaEndereco(id, enderecoDto);
 
-            if (readDto == null)
-            {
-                return NotFound();
-            }
-
-            await _enderecoService.AtualizaEndereco(id, enderecoDto);
+            if (resultado.IsFailed) return NotFound();
 
             return NoContent();
         }
@@ -63,14 +58,9 @@ namespace FilmesAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletaEndereco(int id)
         {
-            var readDto = await _enderecoService.RecuperaEnderecoPorId(id);
+            var resultado = await _enderecoService.DeletaEndereco(id);
 
-            if (readDto == null)
-            {
-                return NotFound();
-            }
-
-            await _enderecoService.DeletaEndereco(readDto);
+            if (resultado.IsFailed) return NotFound();
 
             return NoContent();
         }

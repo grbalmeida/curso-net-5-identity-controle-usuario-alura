@@ -1,13 +1,6 @@
-﻿using AutoMapper;
-using FilmesAPI.Data;
-using FilmesAPI.Data.Dtos;
-using FilmesAPI.Models;
+﻿using FilmesAPI.Data.Dtos;
 using FilmesAPI.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace FilmesAPI.Controllers
@@ -59,14 +52,9 @@ namespace FilmesAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> AtualizaFilme(int id, [FromBody] UpdateFilmeDto filmeDto)
         {
-            var readDto = await _filmeService.RecuperaFilmePorId(id);
-
-            if (readDto == null)
-            {
-                return NotFound();
-            }
-
-            await _filmeService.AtualizaFilme(id, filmeDto);
+            var resultado = await _filmeService.AtualizaFilme(id, filmeDto);
+            
+            if (resultado.IsFailed) return NotFound();
 
             return NoContent();
         }
@@ -74,14 +62,9 @@ namespace FilmesAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletaFilme(int id)
         {
-            var readDto = await _filmeService.RecuperaFilmePorId(id);
+            var resultado = await _filmeService.DeletaFilme(id);
 
-            if (readDto == null)
-            {
-                return NotFound();
-            }
-
-            await _filmeService.DeletaFilme(readDto);
+            if (resultado.IsFailed) return NotFound();
 
             return NoContent();
         }
