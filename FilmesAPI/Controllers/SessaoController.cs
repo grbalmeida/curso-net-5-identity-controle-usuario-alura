@@ -2,6 +2,7 @@
 using FilmesAPI.Data;
 using FilmesAPI.Data.Dtos;
 using FilmesAPI.Models;
+using FilmesAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -12,34 +13,28 @@ namespace FilmesAPI.Controllers
     [Route("[controller]")]
     public class SessaoController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
+        private readonly SessaoService _sessaoService;
 
-        public SessaoController(AppDbContext context, IMapper mapper)
+        public SessaoController(SessaoService sessaoService)
         {
-            _context = context;
-            _mapper = mapper;
+            _sessaoService = sessaoService;
         }
 
         [HttpPost]
         public async Task<IActionResult> AdicionaSessao(CreateSessaoDto sessaoDto)
         {
-            var sessao = _mapper.Map<Sessao>(sessaoDto);
-            _context.Sessoes.Add(sessao);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(RecuperaSessaoPorId), new { sessao.Id }, sessao);
+            var readDto = await _sessaoService.AdicionaSessao(sessaoDto);
+            return CreatedAtAction(nameof(RecuperaSessaoPorId), new { readDto.Id }, readDto);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> RecuperaSessaoPorId(int id)
         {
-            var sessao = await _context.Sessoes.FirstOrDefaultAsync(sessao => sessao.Id == id);
+            var readDto = await _sessaoService.RecuperaSessaoPorId(id);
 
-            if (sessao != null)
+            if (readDto != null)
             {
-                var sessaoDto = _mapper.Map<ReadSessaoDto>(sessao);
-                return Ok(sessaoDto);
+                return Ok(readDto);
             }
 
             return NotFound();

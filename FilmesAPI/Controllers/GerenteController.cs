@@ -1,9 +1,6 @@
-﻿using AutoMapper;
-using FilmesAPI.Data;
-using FilmesAPI.Data.Dtos;
-using FilmesAPI.Models;
+﻿using FilmesAPI.Data.Dtos;
+using FilmesAPI.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
 namespace FilmesAPI.Controllers
@@ -12,34 +9,28 @@ namespace FilmesAPI.Controllers
     [Route("[controller]")]
     public class GerenteController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
+        private readonly GerenteService _gerenteService;
 
-        public GerenteController(AppDbContext context, IMapper mapper)
+        public GerenteController(GerenteService gerenteService)
         {
-            _context = context;
-            _mapper = mapper;
+            _gerenteService = gerenteService;
         }
 
         [HttpPost]
         public async Task<IActionResult> AdicionaGerente(CreateGerenteDto gerenteDto)
         {
-            var gerente = _mapper.Map<Gerente>(gerenteDto);
-            _context.Gerentes.Add(gerente);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(RecuperaGerentePorId), new { gerente.Id }, gerente);
+            var readDto = await _gerenteService.AdicionaGerente(gerenteDto);
+            return CreatedAtAction(nameof(RecuperaGerentePorId), new { readDto.Id }, readDto);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> RecuperaGerentePorId(int id)
         {
-            var gerente = await _context.Gerentes.FirstOrDefaultAsync(gerente => gerente.Id == id);
+            var readDto = await _gerenteService.RecuperaGerentePorId(id);
 
-            if (gerente != null)
+            if (readDto != null)
             {
-                var gerenteDto = _mapper.Map<ReadGerenteDto>(gerente);
-                return Ok(gerenteDto);
+                return Ok(readDto);
             }
 
             return NotFound();
@@ -48,15 +39,14 @@ namespace FilmesAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletaGerente(int id)
         {
-            var gerente = await _context.Gerentes.FirstOrDefaultAsync(gerente => gerente.Id == id);
+            var readDto = await _gerenteService.RecuperaGerentePorId(id);
 
-            if (gerente == null)
+            if (readDto == null)
             {
                 return NotFound();
             }
 
-            _context.Gerentes.Remove(gerente);
-            await _context.SaveChangesAsync();
+            await _gerenteService.DeletaGerente(readDto);
 
             return NoContent();
         }

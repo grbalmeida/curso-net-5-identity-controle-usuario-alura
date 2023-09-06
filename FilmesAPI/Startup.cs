@@ -1,4 +1,5 @@
 using FilmesAPI.Data;
+using FilmesAPI.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +29,12 @@ namespace FilmesAPI
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "FilmesAPI", Version = "v1" });
             });
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+            services.AddScoped<FilmeService>();
+            services.AddScoped<CinemaService>();
+            services.AddScoped<EnderecoService>();
+            services.AddScoped<GerenteService>();
+            services.AddScoped<SessaoService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

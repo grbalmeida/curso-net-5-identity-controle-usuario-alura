@@ -1,11 +1,6 @@
-﻿using AutoMapper;
-using FilmesAPI.Data;
-using FilmesAPI.Data.Dtos;
-using FilmesAPI.Models;
+﻿using FilmesAPI.Data.Dtos;
+using FilmesAPI.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace FilmesAPI.Controllers
@@ -14,62 +9,41 @@ namespace FilmesAPI.Controllers
     [Route("[controller]")]
     public class CinemaController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
+        private readonly CinemaService _cinemaService;
 
-        public CinemaController(AppDbContext context, IMapper mapper)
+        public CinemaController(CinemaService cinemaService)
         {
-            _context = context;
-            _mapper = mapper;
+            _cinemaService = cinemaService;
         }
 
         [HttpPost]
         public async Task<IActionResult> AdicionaCinema([FromBody] CreateCinemaDto cinemaDto)
         {
-            var cinema = _mapper.Map<Cinema>(cinemaDto);
-            _context.Cinemas.Add(cinema);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(RecuperaCinemaPorId), new { cinema.Id }, cinema);
+            var readDto = await _cinemaService.AdicionaCinema(cinemaDto);
+            return CreatedAtAction(nameof(RecuperaCinemaPorId), new { readDto.Id }, readDto);
         }
 
         [HttpGet]
         public async Task<IActionResult> RecuperaCinemas([FromQuery] string nomeDoFilme)
         {
-            var cinemasQuery = _context.Cinemas.AsQueryable();
+            var readDto = await _cinemaService.RecuperaCinemas(nomeDoFilme);
 
-            if (!string.IsNullOrEmpty(nomeDoFilme))
+            if (readDto != null)
             {
-                cinemasQuery = cinemasQuery.Where(cinema => cinema.Sessoes.Any(sessao =>
-                    sessao.Filme.Titulo.Contains(nomeDoFilme)));
-
-                //var query = from cinema in cinemas
-                //        where cinema.Sessoes.Any(sessao =>
-                //        sessao.Filme.Titulo.Contains(nomeDoFilme))
-                //        select cinema;
+                return Ok(readDto);
             }
 
-            var cinemas = await cinemasQuery.ToListAsync();
-
-            if (cinemas == null || cinemas.Count == 0)
-            {
-                return NotFound();
-            }
-
-            var cinemasDto = _mapper.Map<List<ReadCinemaDto>>(cinemas);
-
-            return Ok(cinemasDto);
+            return NotFound();
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> RecuperaCinemaPorId(int id)
         {
-            var cinema = await _context.Cinemas.FirstOrDefaultAsync(cinema => cinema.Id == id);
+            var readDto = await _cinemaService.RecuperaCinemaPorId(id);
 
-            if (cinema != null)
+            if (readDto != null)
             {
-                var cinemaDto = _mapper.Map<ReadCinemaDto>(cinema);
-                return Ok(cinemaDto);
+                return Ok(readDto);
             }
 
             return NotFound();
@@ -78,15 +52,14 @@ namespace FilmesAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> AtualizaCinema(int id, [FromBody] UpdateCinemaDto cinemaDto)
         {
-            var cinema = await _context.Cinemas.FirstOrDefaultAsync(cinema => cinema.Id == id);
+            var readDto = await _cinemaService.RecuperaCinemaPorId(id);
 
-            if (cinema == null)
+            if (readDto == null)
             {
                 return NotFound();
             }
 
-            _mapper.Map(cinemaDto, cinema);
-            await _context.SaveChangesAsync();
+            await _cinemaService.AtualizaCinema(id, cinemaDto);
 
             return NoContent();
         }
@@ -94,15 +67,14 @@ namespace FilmesAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletaCinema(int id)
         {
-            var cinema = await _context.Cinemas.FirstOrDefaultAsync(cinema => cinema.Id == id);
+            var readDto = await _cinemaService.RecuperaCinemaPorId(id);
 
-            if (cinema == null)
+            if (readDto == null)
             {
                 return NotFound();
             }
 
-            _context.Remove(cinema);
-            await _context.SaveChangesAsync();
+            await _cinemaService.DeletaCinema(readDto);
 
             return NoContent();
         }

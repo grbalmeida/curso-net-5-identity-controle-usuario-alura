@@ -2,6 +2,7 @@
 using FilmesAPI.Data;
 using FilmesAPI.Data.Dtos;
 using FilmesAPI.Models;
+using FilmesAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -15,43 +16,28 @@ namespace FilmesAPI.Controllers
     [Route("[controller]")]
     public class FilmeController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
+        private readonly FilmeService _filmeService;
 
-        public FilmeController(AppDbContext context, IMapper mapper)
+        public FilmeController(FilmeService filmeService)
         {
-            _context = context;
-            _mapper = mapper;
+            _filmeService = filmeService;
         }
 
         [HttpPost]
         public async Task<IActionResult> AdicionaFilme([FromBody] CreateFilmeDto filmeDto)
         {
-            var filme = _mapper.Map<Filme>(filmeDto);
-
-            _context.Filmes.Add(filme);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(RecuperaFilmePorId), new { id = filme.Id }, filme);
+            ReadFilmeDto readDto = await _filmeService.AdicionaFilme(filmeDto);
+            return CreatedAtAction(nameof(RecuperaFilmePorId), new { id = readDto.Id }, readDto);
         }
 
         [HttpGet]
         public async Task<IActionResult> RecuperaFilmes([FromQuery] int? classificacaoEtaria = null)
         {
-            List<Filme> filmes;
+            var readDto = await _filmeService.RecuperaFilmes(classificacaoEtaria);
 
-            if (classificacaoEtaria == null)
+            if (readDto != null)
             {
-                filmes = await _context.Filmes.ToListAsync();
-            }
-            else
-            {
-                filmes = await _context.Filmes.Where(filme => filme.ClassificacaoEtaria <= classificacaoEtaria).ToListAsync();
-            }
-
-            if (filmes != null && filmes.Count > 0)
-            {
-                var filmesDto = _mapper.Map<List<ReadFilmeDto>>(filmes);
-                return Ok(filmesDto);
+                return Ok(readDto);
             }
 
             return NotFound();
@@ -60,11 +46,10 @@ namespace FilmesAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> RecuperaFilmePorId(int id)
         {
-            var filme = await _context.Filmes.FirstOrDefaultAsync(filme => filme.Id == id);
+            var filmeDto = await _filmeService.RecuperaFilmePorId(id);
 
-            if (filme != null)
+            if (filmeDto != null)
             {
-                var filmeDto = _mapper.Map<ReadFilmeDto>(filme);
                 return Ok(filmeDto);
             }
 
@@ -74,16 +59,14 @@ namespace FilmesAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> AtualizaFilme(int id, [FromBody] UpdateFilmeDto filmeDto)
         {
-            var filme = await _context.Filmes.FirstOrDefaultAsync(filme => filme.Id == id);
+            var readDto = await _filmeService.RecuperaFilmePorId(id);
 
-            if (filme == null)
+            if (readDto == null)
             {
                 return NotFound();
             }
 
-            _mapper.Map(filmeDto, filme);
-            _context.Filmes.Update(filme);
-            await _context.SaveChangesAsync();
+            await _filmeService.AtualizaFilme(id, filmeDto);
 
             return NoContent();
         }
@@ -91,16 +74,14 @@ namespace FilmesAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletaFilme(int id)
         {
-            var filme = await _context.Filmes.FirstOrDefaultAsync(filme => filme.Id == id);
+            var readDto = await _filmeService.RecuperaFilmePorId(id);
 
-            if (filme == null)
+            if (readDto == null)
             {
                 return NotFound();
             }
 
-            _context.Filmes.Remove(filme);
-
-            await _context.SaveChangesAsync();
+            await _filmeService.DeletaFilme(readDto);
 
             return NoContent();
         }
