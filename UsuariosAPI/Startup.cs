@@ -38,6 +38,7 @@ namespace UsuariosAPI
             );
 
             services.AddScoped<CadastroService>();
+            services.AddScoped<LogoutService>();
             services.AddScoped<LoginService>();
             services.AddScoped<TokenService>();
 
