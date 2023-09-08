@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UsuariosAPI.Data;
+using UsuariosAPI.Services;
 
 namespace UsuariosAPI
 {
@@ -37,6 +38,9 @@ namespace UsuariosAPI
                 options.Stores.MaxLengthForKeys = 85;
             })
                 .AddEntityFrameworkStores<UserDbContext>();
+
+            services.AddScoped<CadastroService>();
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
