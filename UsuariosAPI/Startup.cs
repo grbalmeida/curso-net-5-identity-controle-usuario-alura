@@ -34,12 +34,17 @@ namespace UsuariosAPI
                 options.UseMySQL(Configuration.GetConnectionString("UsuarioConnection")));
             services.AddIdentity<IdentityUser<int>, IdentityRole<int>>(options =>
             {
-                options.SignIn.RequireConfirmedAccount = true;
+                // options.SignIn.RequireConfirmedAccount = true;
                 options.Stores.MaxLengthForKeys = 85;
             })
                 .AddEntityFrameworkStores<UserDbContext>();
 
+            services.Configure<PasswordHasherOptions>(options =>
+                options.CompatibilityMode = PasswordHasherCompatibilityMode.IdentityV2
+            );
+
             services.AddScoped<CadastroService>();
+            services.AddScoped<LoginService>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
