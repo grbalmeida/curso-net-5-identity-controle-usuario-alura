@@ -31,7 +31,8 @@ namespace UsuariosAPI
                 options.SignIn.RequireConfirmedAccount = true;
                 options.Stores.MaxLengthForKeys = 85;
             })
-                .AddEntityFrameworkStores<UserDbContext>();
+                .AddEntityFrameworkStores<UserDbContext>()
+                .AddDefaultTokenProviders();
 
             services.Configure<PasswordHasherOptions>(options =>
                 options.CompatibilityMode = PasswordHasherCompatibilityMode.IdentityV2
