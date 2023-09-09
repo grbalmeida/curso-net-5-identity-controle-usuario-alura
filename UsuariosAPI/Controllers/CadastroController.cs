@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using UsuariosAPI.Data.Dtos;
+using UsuariosAPI.Data.Requests;
 using UsuariosAPI.Services;
 
 namespace UsuariosAPI.Controllers
@@ -22,6 +23,16 @@ namespace UsuariosAPI.Controllers
         public async Task<IActionResult> CadastraUsuario(CreateUsuarioDto createDto)
         {
             Result resultado = await _cadastroService.CadastraUsuario(createDto);
+
+            if (resultado.IsFailed) return StatusCode(500);
+
+            return Ok(resultado.Successes);
+        }
+
+        [HttpPost("/ativa")]
+        public async Task<IActionResult> AtivaContaUsuario(AtivaContaRequest request)
+        {
+            var resultado = await _cadastroService.AtivaContaUsuario(request);
 
             if (resultado.IsFailed) return StatusCode(500);
 
