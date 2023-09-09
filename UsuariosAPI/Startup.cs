@@ -38,6 +38,7 @@ namespace UsuariosAPI
                 options.CompatibilityMode = PasswordHasherCompatibilityMode.IdentityV2
             );
 
+            services.AddScoped<EmailService>();
             services.AddScoped<CadastroService>();
             services.AddScoped<LogoutService>();
             services.AddScoped<LoginService>();
