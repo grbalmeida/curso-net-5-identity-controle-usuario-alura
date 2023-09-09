@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using UsuariosAPI.Data.Dtos;
 using UsuariosAPI.Data.Requests;
 using UsuariosAPI.Models;
@@ -32,12 +33,13 @@ namespace UsuariosAPI.Services
             if (resultadoIdentity.Succeeded)
             {
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(usuarioIdentity);
-                await _emailService.EnviarEmail(
-                    new[] { usuarioIdentity.Email },
-                    "Link de Ativação",
-                    usuarioIdentity.Id,
-                    code);
-                return Result.Ok().WithSuccess(code);
+                var encodedCode = HttpUtility.UrlEncode(code);
+                //await _emailService.EnviarEmail(
+                //    new[] { usuarioIdentity.Email },
+                //    "Link de Ativação",
+                //    usuarioIdentity.Id,
+                //    encodedCode);
+                return Result.Ok().WithSuccess(encodedCode);
             }
 
             return Result.Fail("Falha ao cadastrar usuário");
