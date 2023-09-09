@@ -28,7 +28,7 @@ namespace UsuariosAPI
                 options.UseMySQL(Configuration.GetConnectionString("UsuarioConnection")));
             services.AddIdentity<IdentityUser<int>, IdentityRole<int>>(options =>
             {
-                // options.SignIn.RequireConfirmedAccount = true;
+                options.SignIn.RequireConfirmedAccount = true;
                 options.Stores.MaxLengthForKeys = 85;
             })
                 .AddEntityFrameworkStores<UserDbContext>();
